@@ -201,7 +201,7 @@ if __name__ == "__main__":
             word_embedding=wordEmbedding,
             split="train",
             ssl=False,
-            sentence_patch_sim=args.sentence_patch_sim,
+            sentence_patch_sim=False,
         )
     )
     ssl_dset = localized_narratives_pretrain_loader.LocalizedNarrativesFlickr30dataset(
@@ -210,7 +210,7 @@ if __name__ == "__main__":
         word_embedding=wordEmbedding,
         split="train",
         ssl=True,
-        sentence_patch_sim=args.sentence_patch_sim,
+        sentence_patch_sim=False,
     )
 
     if args.distributed:

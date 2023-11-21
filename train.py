@@ -24,7 +24,6 @@ ceLoss = nn.CrossEntropyLoss(reduction="mean")
 contrastive_loss = losses.ContrastiveLoss(1.0)
 sup_contrastive_loss = losses.SupContrastiveLoss(0.1)
 sup_contrastive_loss_unlabeled = losses.TripletLoss(1.0)
-cluster_triplet_loss = losses.ClusteringTripletLoss(1.0)
 hard_triplet_loss = losses.HardTripletLoss(1.0)
 
 triplet_loss_grounding = losses.TripletLossGrounding(1.0)
@@ -204,7 +203,7 @@ def ssl_train(model, ssl_loader, ssl_train_iter, device, optimizer, args, lr=1e-
     return ssl_loss
 
 
-def pretrain(
+def train_model(
     model,
     ema_model,
     train_loader,

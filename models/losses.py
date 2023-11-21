@@ -233,42 +233,6 @@ def ce_loss(pred, target):
     return loss
 
 
-from models import k_means
-
-
-class ClusteringTripletLoss(nn.Module):
-    def __init__(self, margin=1.0):
-        super(ClusteringTripletLoss, self).__init__()
-        self.margin = margin
-
-    def calc_euclidean(self, x1, x2):
-        return (x1 - x2).pow(2).sum(1)
-
-    def forward(self, features=None, labels=None, perm_indexes=None):
-        features = F.normalize(features, p=2.0)
-        if perm_indexes is not None:
-            anchor = torch.index_select(
-                features, 0, torch.tensor([perm_indexes]).to(features.device)
-            )
-            labels = torch.index_select(
-                labels, 0, torch.tensor([perm_indexes]).to(features.device)
-            )
-
-        positive_chains = torch.mean((features * labels.squeeze(0)[:, None]), dim=0)
-        neg_labels = (~labels.bool()).float()
-        neg_features = features * neg_labels.squeeze(0)[:, None]
-        centroids = k_means.run_kmeans(neg_features)
-        # clusters = cluster_results['centroids'][0]
-        perm_idx = int(torch.randperm(len(centroids))[0])
-        negative_chains = torch.index_select(
-            centroids, 0, torch.tensor([perm_idx]).to(features.device)
-        )
-        distance_positive = self.calc_euclidean(anchor, positive_chains)
-        distance_negative = self.calc_euclidean(anchor, negative_chains)
-        losses = torch.relu(distance_positive - distance_negative + self.margin)
-
-        return losses.mean()
-
 
 class TripletLossGrounding(nn.Module):
     def __init__(self, margin=1.0):

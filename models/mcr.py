@@ -136,14 +136,12 @@ class BertPretrain(nn.Module):
         self.softmax = nn.Softmax(dim=-1)
         self.visual_embedder = ImageEmbedder(config, config["img_dim"], text_width)
         vision_width = config["vision_width"]
-        self.mouse_trace_as_inputs = args.mouse_trace_as_inputs
         self.s2v = True
         if self.s2v:
             self.new_text_proj = nn.Linear(text_width + 128, embed_dim)
         else:
             self.new_text_proj = nn.Linear(text_width, embed_dim)
 
-        self.sentence_patch_sim = args.sentence_patch_sim
         self.visual_encoder = ImageEncoder(config)
 
         self.bbox_reg = args.bbox_reg

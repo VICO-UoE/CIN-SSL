@@ -545,9 +545,10 @@ class LocalizedNarrativesFlickr30dataset(Dataset):
                         rel_phrases.append(entity.text)
                         pos_tags.append(entity.root.tag_)
                         start_end_phrases.append([entity.start, entity.end])
-                rule_coref_matrix = data_utils.prior_coref_rules(
-                    rel_phrases, pos_tags, start_end_phrases
-                )
+                # rule_coref_matrix = data_utils.prior_coref_rules(
+                #     rel_phrases, pos_tags, start_end_phrases
+                # )
+                rule_coref_matrix = np.zeros((len(phrase_queries), len(phrase_queries)))
 
             else:
                 # TODO(goarushi): add this from our annotations.
@@ -780,7 +781,6 @@ class LocalizedNarrativesFlickr30dataset(Dataset):
             phrase_queries_input_ids = []
             phrase_queries_attention_mask = []
             phrase_queries_start_end_idx = []
-            phrase_queries_start_end_char_idx = []
             sense2vec_feats = []
             max_assignments = []
             rel_phrases = []
@@ -824,9 +824,7 @@ class LocalizedNarrativesFlickr30dataset(Dataset):
                         ]["img_width"]
                         phrase_queries.append(entity)
                         phrase_queries_start_end_idx.append(query_start_end[i])
-                        phrase_queries_start_end_char_idx.append(
-                            query_char_start_end[i]
-                        )
+                        
                         phrase_input_ids = []
                         phrase_attention_mask = []
                         s = self.tokenizer.tokenize(entity)
@@ -901,10 +899,10 @@ class LocalizedNarrativesFlickr30dataset(Dataset):
                 rel_query_start_end.append(phrase_queries_start_end_idx[k])
 
                 rel_phrases.append(entity)
-            rule_coref_matrix = data_utils.prior_coref_rules(
-                rel_phrases, pos_tags, rel_query_start_end
-            )
-            # rule_coref_matrix = np.zeros((len(phrase_queries), len(phrase_queries)))
+            # rule_coref_matrix = data_utils.prior_coref_rules(
+            #     rel_phrases, pos_tags, rel_query_start_end
+            # )
+            rule_coref_matrix = np.zeros((len(phrase_queries), len(phrase_queries)))
         # Pad target bboxes
         padbox = [0.0, 0.0, 0.0, 0.0]
         num_obj = min(len(labels), self.max_detected_boxes)
@@ -938,13 +936,10 @@ class LocalizedNarrativesFlickr30dataset(Dataset):
         while len(phrase_queries) < self.max_queries:
             phrase_queries.append("")
             phrase_queries_start_end_idx.append([0] * 2)
-            phrase_queries_start_end_char_idx.append([0] * 2)
             # max_assignments.append(0)
         phrase_queries = phrase_queries[: self.max_queries]
         phrase_queries_start_end_idx = phrase_queries_start_end_idx[: self.max_queries]
-        phrase_queries_start_end_char_idx = phrase_queries_start_end_char_idx[
-            : self.max_queries
-        ]
+        
         while len(phrase_queries_input_ids) < self.max_queries:
             phrase_queries_input_ids.append(
                 torch.zeros((1, self.max_query_length), dtype=int)
@@ -969,7 +964,6 @@ class LocalizedNarrativesFlickr30dataset(Dataset):
         rule_coref_matrix = rule_coref_matrix[: self.max_queries, : self.max_queries]
         assert len(phrase_queries) == self.max_queries
         assert len(phrase_queries_start_end_idx) == self.max_queries
-        assert len(phrase_queries_start_end_char_idx) == self.max_queries
         if self.split == "train":
             if self.sentence_patch_sim:
                 return (
@@ -1036,7 +1030,6 @@ class LocalizedNarrativesFlickr30dataset(Dataset):
                 torch.tensor(caption_attn_mask),
                 torch.stack(sense2vec_feats),
                 torch.tensor(phrase_queries_start_end_idx),
-                torch.tensor(phrase_queries_start_end_char_idx),
                 torch.tensor(num_obj),
                 torch.tensor(num_query),
                 torch.tensor(target_bboxes),

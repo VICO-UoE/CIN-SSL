@@ -4,7 +4,6 @@ from __future__ import print_function
 import numpy as np
 from scipy import spatial
 import numpy as np
-from data import coref_rules
 
 
 class WordEmbeddings:

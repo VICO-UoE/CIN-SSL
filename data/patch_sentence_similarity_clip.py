@@ -1,7 +1,6 @@
 from PIL import Image
 import sys
 import os
-from split_image import split_image
 import glob
 import torch
 import h5py

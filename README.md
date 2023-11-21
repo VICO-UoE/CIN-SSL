@@ -26,6 +26,13 @@ conda activate mcr
 
 conda install pytorch==1.8.0 torchvision==0.9.0 torchaudio==0.8.0 cudatoolkit=10.2 -c pytorch
 
+pip install transformers==4.11.3
+pip install spacy==3.4.1
+pip install spacy-transformers
+python -m spacy download en_core_web_sm
+pip install h5py
+pip install scipy
+pip install sense2vec
 ```
 
 ## Prepare dataset
@@ -34,7 +41,7 @@ Create a folder `datasets/`.
 
 Download the CIN annotations from [here](https://drive.google.com/drive/folders/1RId8PI3KKMKVPE4vuCBFU1ugZI_wfe7m?usp=sharing). This will create a folder `cin_annotations` inside the `datasets` folder.
 
-Download the Localized narrative caption vocabulary `flk30k_LN.json` [json file](https://drive.google.com/file/d/1D_E6tnqBeYlnBfD_rHGEAHyD1Bj7VXt5/view?usp=sharing) to `datasets/`.
+Download the Localized narrative caption vocabulary `flk30k_LN.json` [json file](https://drive.google.com/file/d/1D_E6tnqBeYlnBfD_rHGEAHyD1Bj7VXt5/view?usp=sharing) to `datasets/`.  
 
 Download the Localized narrative captions `flk30k_LN_label.h5` [hdf5 file](https://drive.google.com/file/d/1pBVPpgMTAerQY5Sq_JMrUOGJMhaYPbG0/view?usp=sharing) to `datasets/`.
 

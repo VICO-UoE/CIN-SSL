@@ -181,7 +181,6 @@ def evaluate(test_loader, model, device, args):
         caption_attn_masks,
         sense2vec_feats,
         query_start_end,
-        query_char_start_end,
         num_objects,
         num_query,
         target_bboxes,
@@ -204,7 +203,6 @@ def evaluate(test_loader, model, device, args):
                 caption_attn_masks,
                 sense2vec_feats,
                 query_start_end,
-                query_char_start_end,
                 num_objects,
                 num_query,
                 target_bboxes,
@@ -223,7 +221,6 @@ def evaluate(test_loader, model, device, args):
                 caption_attn_masks.to(device),
                 sense2vec_feats.to(device),
                 query_start_end.to(device),
-                query_char_start_end.to(device),
                 num_objects.to(device),
                 num_query.to(device),
                 target_bboxes.to(device),
@@ -274,16 +271,12 @@ def evaluate(test_loader, model, device, args):
                 phrase_queries_input_ids=phrase_queries_input_ids,
             )
 
-            
             cost_matrix = matrix_logits_reg[0]
-
-            
             argmin_cos_dist = []
-            
             cost_matrix = cost_matrix[: int(num_query), : int(num_query)]
             cost_matrix = cost_matrix.cpu().detach().numpy()
 
-            
+
             for k in range(int(num_query)):
                 cos_dist = np.where(cost_matrix[k] > 0.8)[0].tolist()
                 argmin_cos_dist.append(cos_dist)
@@ -310,7 +303,7 @@ def evaluate(test_loader, model, device, args):
             gold_data = evaluate_helper(
                 idx.cpu().tolist(),
                 final_list,
-                query_char_start_end.cpu().tolist(),
+                phrase_queries,
                 num_query.cpu().tolist(),
             )
             final_output_data.append(gold_data)
