@@ -429,7 +429,7 @@ def train_model(
                         b_gt_grounding_matrix = []
                         b_grounding_matrix = []
                         for q in range(num_query[b]):
-                            if maxval[b][q][0] > 0.5:
+                            if maxval[b][q][0] > 0.9:
                                 b_gt_grounding_matrix.append(
                                     gt_grounding_matrix[b][q]
                                 )
