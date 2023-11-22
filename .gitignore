@@ -10,7 +10,10 @@ _ext
 **/.ipynb_checkpoints/
 
 # checkpoint
-checkpoint/
+saved/
+
+# coref
+coref/
 
 # dataset
 datasets/

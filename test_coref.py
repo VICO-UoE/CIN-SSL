@@ -280,8 +280,9 @@ def evaluate(test_loader, model, device, args):
             for k in range(int(num_query)):
                 cos_dist = np.where(cost_matrix[k] > 0.8)[0].tolist()
                 argmin_cos_dist.append(cos_dist)
-
-            argmin_cos_dist = np.unique(argmin_cos_dist).tolist()
+            
+            argmin_cos_dist = np.unique(np.array(argmin_cos_dist)).tolist()
+            
             y = []
             if not isinstance(argmin_cos_dist[0], list):
                 argmin_cos_dist = np.expand_dims(argmin_cos_dist, axis=1).tolist()
@@ -307,42 +308,34 @@ def evaluate(test_loader, model, device, args):
                 num_query.cpu().tolist(),
             )
             final_output_data.append(gold_data)
-        
-    with jsonlines.open(
-        "clusters_conll_format/predicted_clusters.jsonl", "w"
-    ) as writer:
-        writer.write_all(final_output_data)
 
 
 def evaluate_helper(image_id, query_box_max_id, phrase_queries, num_queries):
     for img_id, n_query in zip(image_id, num_queries):
         similar_clusters = {}
         count = 0
-
         max_box_id = query_box_max_id[:n_query]
-        phrase_query = phrase_queries[0][:n_query]
+        phrase_query = phrase_queries[:n_query]
         phrases_with_count = []
         for c in range(len(phrase_query)):
-            phrases_with_count.append(phrase_query[c])
+            phrases_with_count.append(phrase_query[c][0] + str(c))
 
-      
-        similar_clusters = []
         for _, cluster in enumerate(max_box_id):
             # if len(cluster) > 1:
-            cluster_one = []
+            similar_clusters[str(count)] = []
             if isinstance(cluster, list):
                 for j in cluster:
-                    cluster_one.append(phrases_with_count[j])
+                    similar_clusters[str(count)].append(str(phrases_with_count[j]))
             else:
-                cluster_one.append(phrases_with_count[cluster])
-            similar_clusters.append(cluster_one)
+                similar_clusters[str(count)].append(str(phrases_with_count[cluster]))
+            count = count + 1
+
         gold = {"name": str(img_id), "type": "clusters", "clusters": similar_clusters}
-        gold_data = {"doc_key": str(img_id), "clusters": similar_clusters}
         out_file = open(os.path.join(ref_dir, "test", str(img_id) + ".json"), "w")
         data = json.dump(gold, out_file, indent=4)
         out_file.close()
 
-    return gold_data
+    return gold
 
 
 

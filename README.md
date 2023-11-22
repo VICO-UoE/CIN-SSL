@@ -28,11 +28,13 @@ conda install pytorch==1.8.0 torchvision==0.9.0 torchaudio==0.8.0 cudatoolkit=10
 
 pip install transformers==4.11.3
 pip install spacy==3.4.1
+pip install numpy==1.23.3
 pip install spacy-transformers
 python -m spacy download en_core_web_sm
 pip install h5py
 pip install scipy
 pip install sense2vec
+pip install scorch
 ```
 
 ## Prepare dataset
@@ -52,11 +54,11 @@ Download [train_detection_dict.json](https://drive.google.com/file/d/1_S-zyKF7F8
 
 Download [train_imgid2idx.pkl](https://drive.google.com/file/d/1n9AobA8u6hk_MSs7o3bl-IImsE45A1kV/view?usp=sharing), [val_imgid2idx.pkl](https://drive.google.com/file/d/1A3vXqIfbOj837WS7AUih50rSPmTqZwrn/view?usp=sharing), and [test_imgid2idx.pkl](https://drive.google.com/file/d/1ziEExW2XB_Ru6ctLI8KLHOQOjBFUVfMl/view?usp=sharing)  to `datasets/faster_rcnn_image_features`.
 
-(Optional) Download the processed mouse traces `flk30k_LN_trace_box` for the flickr30k localized narrative captions from [here]() 
+(Optional) Download the processed mouse traces `flk30k_LN_trace_box` for the flickr30k localized narrative captions from [here](https://drive.google.com/file/d/17m7Y9TV1K3erMPJGbIIGSF1SBuc2OBbn/view?usp=sharing) 
 
 ## Training script 
 
-To save the models create a folder `saved/` and then run the training script below for the final model.
+To save the models create a folder `saved/final_model` and then run the training script below for the final model.
 
 ```
 CUDA_VISIBLE_DEVICES=1,2,3,4 python -m torch.distributed.launch --master_port 10006 --nproc_per_node=4 --use_env main.py --use-ema --use-ssl --model_config configs/mcr_config.json --batch 6 --ssl_loss con --label-prop --bbox-reg --grounding --save_name final_model/
@@ -65,7 +67,7 @@ CUDA_VISIBLE_DEVICES=1,2,3,4 python -m torch.distributed.launch --master_port 10
 ## Evaluation script 
 
 ### For coreference resolution 
-This test script will save the predicted coreference chains in the folder `coref/modelrefs`
+This test script will save the predicted coreference chains in the folder `coref/modelrefs/test`. Create this directory prior to running the script.
 
 ```
 CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --master_port 10003 --nproc_per_node=1 --use_env test_coref.py  --bbox-reg --use-phrase-mask --model_config configs/mcr_config.json --save_name saved/final_model/models_17.pt
@@ -76,7 +78,7 @@ Run the scorch script below to calculate CR metrics.
 ### For narrative grounding
 
 ```
-CUDA_VISIBLE_DEVICES=5 python -m torch.distributed.launch --master_port 10003 --nproc_per_node=1 --use_env test_grounding.py  --bbox-reg --use-phrase-mask --model_config configs/mcr_config.json ---save_name saved/final_model/models_17.pt
+CUDA_VISIBLE_DEVICES=5 python -m torch.distributed.launch --master_port 10003 --nproc_per_node=1 --use_env test_grounding.py  --bbox-reg --use-phrase-mask --model_config configs/mcr_config.json --save_name saved/final_model/models_17.pt
 ```
 
 ## Prepare ground truth coreference annotations
